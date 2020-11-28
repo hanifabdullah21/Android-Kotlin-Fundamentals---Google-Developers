@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.navArgs
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.ScoreFragmentBinding
 
@@ -30,6 +32,10 @@ import com.example.android.guesstheword.databinding.ScoreFragmentBinding
  * Fragment where the final score is shown, after the game is over
  */
 class ScoreFragment : Fragment() {
+
+    //TODO 8.3 Add new vaariable
+    lateinit var scoreViewModel: ScoreViewModel
+    lateinit var scoreViewModelFactory: ScoreViewModelFactory
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -44,6 +50,36 @@ class ScoreFragment : Fragment() {
                 container,
                 false
         )
+
+        //TODO 8.4 Add initialize variable scoreViewModel and scoreViewModelFactory
+        scoreViewModelFactory = ScoreViewModelFactory(ScoreFragmentArgs.fromBundle(requireArguments()).score)
+        scoreViewModel = ViewModelProvider(this, scoreViewModelFactory).get(ScoreViewModel::class.java)
+
+        //binding.scoreText.text = scoreViewModel.score.toString()
+
+        //TODO 18.3 Add initialize databinding viewmodel
+        binding.scoreViewModel = scoreViewModel
+
+        //TODO 19.5 Setup binding lifecycle owner fragment
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        //TODO 14.3 Add observer the score
+        //TODO 19.6 Remove observer score
+        //scoreViewModel.score.observe(viewLifecycleOwner, Observer {
+        //    binding.scoreText.text = it.toString()
+        //})
+
+        //TODO 15.3 Add observer the eventPlayAgain
+        scoreViewModel.eventPlayAgain.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                findNavController().navigate(ScoreFragmentDirections.actionRestart())
+                scoreViewModel.onPlayAgainFinish()
+            }
+        })
+
+        //TODO 15.4 Add event when button play again clicked
+        //TODO 18.4 Remove event listener
+        //binding.playAgainButton.setOnClickListener { scoreViewModel.onPlayAgain() }
 
         return binding.root
     }

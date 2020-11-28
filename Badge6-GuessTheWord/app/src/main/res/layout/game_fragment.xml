@@ -18,6 +18,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--TODO 16.1 ADD Data binding-->
+    <data>
+        <variable
+            name="gameViewModel"
+            type="com.example.android.guesstheword.screens.game.GameViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/game_layout"
         android:layout_width="match_parent"
@@ -41,6 +48,10 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
+        <!--TODO 19.1 Add binding Live data word-->
+        <!--android:text="@{gameViewModel.word}"-->
+        <!--TODO 20.2 Change text with string formatting-->
+
         <TextView
             android:id="@+id/word_text"
             android:layout_width="wrap_content"
@@ -51,6 +62,7 @@
             android:textColor="@color/black_text_color"
             android:textSize="34sp"
             android:textStyle="normal"
+            android:text="@{@string/quote_format(gameViewModel.word)}"
             app:layout_constraintBottom_toTopOf="@+id/score_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -59,6 +71,7 @@
             app:layout_constraintVertical_chainStyle="packed"
             tools:text="&quot;Tuna&quot;" />
 
+        <!--TODO 22.2 Add text from transformation currenttime-->
         <TextView
             android:id="@+id/timer_text"
             android:layout_width="wrap_content"
@@ -68,12 +81,15 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif"
             android:textColor="@color/grey_text_color"
+            android:text="@{gameViewModel.currentTimeString}"
             android:textSize="14sp"
             android:textStyle="normal"
             app:layout_constraintBottom_toTopOf="@+id/score_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="0:00" />
+
+        <!--TODO 20.3 Add binding string formatting-->
 
         <TextView
             android:id="@+id/score_text"
@@ -82,6 +98,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="sans-serif"
+            android:text="@{@string/score_format(gameViewModel.score)}"
             android:textColor="@color/grey_text_color"
             android:textSize="14sp"
             android:textStyle="normal"
@@ -90,12 +107,15 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Score: 2" />
 
+        <!--TODO 17.1 Use listener binding for event handling-->
+
         <Button
             android:id="@+id/skip_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/skip"
+            android:onClick="@{() -> gameViewModel.onSkip()}"
             android:theme="@style/SkipButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -116,6 +136,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:text="@string/got_it"
+            android:onClick="@{() -> gameViewModel.onCorrect()}"
             android:theme="@style/GoButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/end_game_button"
@@ -128,6 +149,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:text="@string/end_game"
+            android:onClick="@{() -> gameViewModel.onGameFinish()}"
             android:theme="@style/SkipButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

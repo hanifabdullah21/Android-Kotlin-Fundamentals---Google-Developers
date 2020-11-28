@@ -17,11 +17,16 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
 
@@ -30,14 +35,10 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
  */
 class GameFragment : Fragment() {
 
-    // The current word
-    private var word = ""
+    //TODO 4.1 Add new variable type GameViewModel
+    private lateinit var gameViewModel: GameViewModel
 
-    // The current score
-    private var score = 0
-
-    // The list of words - the front of the list is the next word to guess
-    private lateinit var wordList: MutableList<String>
+    //TODO 5.1 Move variables (word, score, wordList) and methods (resetList() and nextWord()) to GameViewModel class
 
     private lateinit var binding: GameFragmentBinding
 
@@ -52,79 +53,108 @@ class GameFragment : Fragment() {
                 false
         )
 
-        resetList()
-        nextWord()
+        //TODO 4.2 Initialize variable type GameViewModel. Use ViewModelProvider because :
+        // * ViewModelProvider returns an existing ViewModel if one exists, or it creates a new one if it does not already exist.
+        // * ViewModelProvider creates a ViewModel instance in association with the given scope (an activity or a fragment).
+        // * The created ViewModel is retained as long as the scope is alive. For example, if the scope is a fragment, the ViewModel is retained until the fragment is detached.
+        Log.i("GameFragment", "Called ViewModelProvider.get")
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
-        updateScoreText()
-        updateWordText()
+        //TODO 16.2 Pass ViewModel to databinding
+        binding.gameViewModel = gameViewModel
+
+        //TODO 19.2 set binding lifecycle owner
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        //TODO 10.1 Add Observer to the LiveData
+        //TODO 20.5 Remove score observer
+        //gameViewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+        //    binding.scoreText.text = newScore.toString()
+        //})
+
+        //TODO 19.3 Remove observer word
+        //gameViewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+        //    binding.wordText.text = newWord
+        //})
+
+        //TODO 12.4 Add observer LiveData eventGameFinish
+        gameViewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
+            if (it) gameFinished()
+        })
+
+        //TODO 17.2 Remove event handling button
+        //binding.correctButton.setOnClickListener { onCorrect() }
+        //binding.skipButton.setOnClickListener { onSkip() }
+
+        //TODO 7.2 Call method onEndGame when user tap endGameButton
+        //binding.endGameButton.setOnClickListener { onEndGame() }
+
+        //updateScoreText()
+        //updateWordText()
         return binding.root
 
     }
 
-    /**
-     * Resets the list of words and randomizes the order
-     */
-    private fun resetList() {
-        wordList = mutableListOf(
-                "queen",
-                "hospital",
-                "basketball",
-                "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
-        )
-        wordList.shuffle()
-    }
-
     /** Methods for buttons presses **/
 
-    private fun onSkip() {
-        score--
-        nextWord()
-    }
+    //TODO 6.1 Update code inside method onSkip() and onCorrect()
 
-    private fun onCorrect() {
-        score++
-        nextWord()
-    }
+    //TODO 10.2 Delete all updateWordText() and updateScoreText()
 
-    /**
-     * Moves to the next word in the list
-     */
-    private fun nextWord() {
-        if (!wordList.isEmpty()) {
-            //Select and remove a word from the list
-            word = wordList.removeAt(0)
-        }
-        updateWordText()
-        updateScoreText()
-    }
+    //TODO 17.3 Remove event method handling button
 
+    //private fun onSkip() {
+        //score++
+        //nextWord()
+    //    gameViewModel.onSkip()
+        //updateWordText()
+        //updateScoreText()
+    //}
+
+    //private fun onCorrect() {
+        //score++
+        //nextWord()
+    //    gameViewModel.onCorrect()
+        //updateWordText()
+        //updateScoreText()
+    //}
 
     /** Methods for updating the UI **/
 
-    private fun updateWordText() {
-        binding.wordText.text = word
-    }
+    //TODO 6.2 Update code inside method updateWordText() and updateScoreText().
+    // Call word and score variable from GameViewModel object
 
-    private fun updateScoreText() {
-        binding.scoreText.text = score.toString()
+    //TODO 9.4 Update how to call word and score on updateWordText(), updateScoreText() and gameFinished()
+
+    //    private fun updateWordText() {
+    //        // binding.wordText.text = word
+    //        // binding.wordText.text = gameViewModel.word
+    //        binding.wordText.text = gameViewModel.word.value
+    //    }
+    //
+    //    private fun updateScoreText() {
+    //        // binding.scoreText.text = score.toString()
+    //        // binding.scoreText.text = gameViewModel.score.toString()
+    //        binding.scoreText.text = gameViewModel.score.value.toString()
+    //    }
+
+    //TODO 7.1 Add method onEndGame
+    //private fun onEndGame() {
+    //    gameFinished()
+    //}
+
+    //TODO 7.3 Add method gameFinished() and call inside onEndGame() method
+    /**
+     * Called when the game is finished
+     */
+    private fun gameFinished() {
+        Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
+        val action = GameFragmentDirections.actionGameToScore()
+//        action.score = gameViewModel.score
+        action.score = gameViewModel.score.value ?: 0
+        NavHostFragment.findNavController(this).navigate(action)
+
+        //TODO 13.2 call onGameFinishComplete
+        gameViewModel.onGameFinishComplete()
     }
 }
